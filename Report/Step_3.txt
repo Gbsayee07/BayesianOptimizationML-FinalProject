@@ -1,0 +1,87 @@
+Step 3: Model Fitting and BIC-Based Model Selection
+
+In this step, we investigated which Gaussian process (GP) model provides the best explanation of each dataset using the Bayesian Information Criterion (BIC). BIC provides a trade-off between how well the model fits the data and how complex it is. Lower BIC values correspond to more probable models under a Bayesian interpretation of model evidence.
+
+We considered three GP model families for all datasets:
+	•	Zero-mean + Squared-Exponential (SE) kernel
+	•	Constant-mean + SE kernel
+	•	Constant-mean + SE + Linear kernel
+
+For the Branin dataset, we reused the 32 Sobol points generated in Step 2.
+For the SVM and LDA datasets, we randomly sampled 32 points from each benchmark grid.
+
+⸻
+
+Branin Model Search
+
+| Model | log p(y | X, θ) | BIC |
+|—––|——————|——|
+| zero mean + SE | −122.933 | 256.263 |
+| constant mean + SE | −122.915 | 259.692 |
+| constant mean + SE + linear | −111.042 | 239.412 |
+
+Result:
+The best model for Branin is constant-mean + SE + linear kernel.
+
+Interpretation:
+Branin contains a mixture of smooth curvature and mild linear trends.
+While the SE kernel alone captures smoothness, the additional linear component slightly improves the evidence. The constant mean also helps center the GP around the global average of the function.
+
+⸻
+
+SVM Hyperparameter Tuning Dataset
+
+(Noise level ≈ 0.004)
+
+| Model | log p(y | X, θ) | BIC |
+|—––|——————|——|
+| zero mean + SE | 14.704 | −15.545 |
+| constant mean + SE | 45.414 | −73.499 |
+| constant mean + SE + linear | −2.074 | 24.942 |
+
+Result:
+The best model for SVM is constant-mean + SE kernel.
+
+Interpretation:
+The SVM response surface is smooth and benefits from a non-zero mean.
+The SE kernel captures this smoothness well, while the linear term does not improve the fit and is penalized by BIC.
+
+⸻
+
+LDA Hyperparameter Tuning Dataset
+
+(Noise level ≈ 38.1)
+
+| Model | log p(y | X, θ) | BIC |
+|—––|——————|——|
+| zero mean + SE | −280.933 | 575.729 |
+| constant mean + SE | −280.201 | 577.732 |
+| constant mean + SE + linear | −8907.807 | 17836.408 |
+
+Result:
+The best model for LDA is zero-mean + SE kernel.
+
+Interpretation:
+Unlike the SVM dataset, the LDA objective values are extremely noisy.
+Adding a mean parameter does not improve predictive likelihood, and adding a linear term significantly harms the fit. A simple SE kernel with zero mean is the most stable and best-calibrated choice.
+
+
+Summary of Model Selection Results
+
+Dataset
+Best GP Model (BIC)
+Branin
+const mean + SE + linear
+SVM
+const mean + SE
+LDA
+zero mean + SE
+
+
+Across all datasets:
+	•	The Squared-Exponential kernel consistently performs best and should be used in the Bayesian optimization stage.
+	•	The linear kernel is only helpful for Branin.
+	•	High-noise datasets (LDA) favor simpler models (zero-mean SE).
+	•	Grid-based hyperparameter landscapes (SVM) retain enough smooth curvature that a constant-mean SE kernel explains the data best.
+
+These model choices will be carried forward to Step 4 when constructing the acquisition function and running Bayesian optimization.

@@ -1,0 +1,50 @@
+Step 1 — Data Visualization
+
+1. Branin Function Heatmap
+
+We began by visualizing the Branin function over the domain
+X = [-5, 10] times [0, 15],
+using a dense 1000 times 1000 grid. This produces a smooth heatmap showing the global structure of the objective function.
+
+Raw Branin Function
+
+The raw heatmap clearly reveals the three well-known global minima of the Branin function. The function varies significantly across the domain, with values ranging from approximately 0 to over 300. This large dynamic range indicates strong non-stationarity: the smoothness and curvature of the function vary depending on the region.
+
+Log-Transformed Branin
+
+To reduce this non-stationarity, we also plotted a log-transformed version of the Branin function. The transformation compresses the high-value regions and expands low-value regions, producing a more uniform and stationary landscape. This is useful for Gaussian process (GP) modeling since GPs typically assume that the underlying function variation is consistent across the domain.
+
+⸻
+
+2. KDE of Benchmark Data (SVM and LDA)
+
+The second part of Step 1 involved examining the real benchmark datasets: SVM and LDA hyperparameter performance grids. Each dataset includes objective values evaluated on a 3D hyperparameter grid. Since the GP will model these objective values directly, we analyzed their 1D distributions.
+
+SVM Dataset
+
+Raw KDE
+The raw objective values are heavily skewed, with a sharp peak near 0.28 and a long right tail. This suggests heteroskedasticity and non-Gaussian behavior, which can lead to poorer GP fits.
+
+Transformed KDE
+Applying a log transformation yields a smoother, more symmetric distribution. The tail becomes much shorter, and the peak becomes more Gaussian-like. This transformation will likely improve GP modeling by reducing skew and stabilizing variance.
+
+⸻
+
+LDA Dataset
+
+Raw KDE
+The LDA objective values span a very wide range (roughly 1000–6000) and have a long right tail. The distribution is highly non-Gaussian, with significant skewness and heavy-tailed behavior.
+
+Transformed KDE
+A log transform dramatically improves the distribution’s shape. The KDE becomes unimodal, smoother, and more symmetric. Since GP regression assumes a stationary process with reasonably stable variance, this transformation is expected to make the LDA data far easier to model.
+
+⸻
+
+3. Interpretation
+
+Overall, the visualizations reveal that:
+	•	The raw Branin function is non-stationary, but a log transform makes it more GP-friendly.
+	•	Both the SVM and LDA datasets exhibit heavy skew and long tails, which are problematic for GP modeling.
+	•	Log transformations significantly improve distributional behavior, making the data closer to the Gaussian assumptions underpinning GP regression.
+
+These visual insights guide the modeling choices in Step 2. The transformed versions will likely produce more stable GP fits, higher marginal likelihoods, and better-calibrated uncertainty estimates.

@@ -1,0 +1,63 @@
+Step 4 — Bayesian Optimization Experiments (Discussion)
+
+In the final stage of the project, we evaluated how well Bayesian Optimization (BO) performs compared to Random Search on three different objective functions: the continuous Branin benchmark and two discrete machine-learning hyperparameter tuning datasets (SVM and LDA). For each problem, we ran 20 independent optimization trials with 5 Sobol-initialized points, followed by 30 Bayesian optimization iterations. Random search was allowed 150 evaluations to provide a fair baseline.
+
+We measured performance using a normalized optimization gap, defined as:
+
+\text{gap}(t)=\frac{f_{\text{init}} - f_{\text{best}}(t)}
+{f_{\text{init}} - f^\* + 10^{-12}}
+
+where f^\* is the global minimum of the dataset. This normalization produces curves on [0,1], allowing comparisons across very different functions.
+
+⸻
+
+4.1 Branin Results
+
+Bayesian Optimization performs extremely well on the Branin function. The GP surrogate fits the underlying function accurately, and EI quickly identifies promising regions of the search space. BO’s optimization gap climbs rapidly, reaching values above 0.9 within the first 10 iterations, while random search improves more gradually.
+
+This strong performance aligns with expectations:
+	•	Branin is smooth, well-behaved, and low-noise
+	•	The squared-exponential kernel matches its structure well
+	•	Acquisition optimization is relatively easy in 2D
+
+The result clearly highlights the intended strengths of classical BO: when the target function is smooth and informative, BO outperforms uninformed sampling by a large margin.
+
+⸻
+
+4.2 SVM Dataset Results
+
+On the SVM dataset, BO still outperforms random search but with a smaller margin. Both methods steadily improve, but EI consistently achieves a higher average gap across iterations.
+
+Unlike Branin, this dataset has:
+	•	A discrete grid of hyperparameters
+	•	Higher variance in objective evaluations
+	•	A more irregular landscape
+
+These properties cause GP fitting to be less reliable. Lengthscales are harder to optimize, and the underlying structure is noisier, so EI’s model-based guidance is partially degraded. Nevertheless, BO remains advantageous because it still uses accumulated information to prioritize historically promising regions.
+
+⸻
+
+4.3 LDA Dataset Results
+
+The LDA dataset shows the most interesting behavior. EI initially improves rapidly, finding good configurations within the first few iterations, but then plateaus early, while random search continues to make slower but steady progress.
+
+This is likely due to:
+	•	High noise level in LDA objective values
+	•	A weak correlation structure that violates GP assumptions
+	•	EI’s tendency to exploit aggressively when uncertainty estimates become unreliable
+
+In noisy or weakly structured domains, EI can prematurely focus on suboptimal regions, leading to early convergence. The random search baseline, although inefficient, is not subject to model bias and sometimes continues improving after BO has stagnated.
+
+These results highlight a known limitation of classical BO: kernel mis-specification + high noise can lead to unreliable acquisition behavior. Alternative acquisition functions (e.g., UCB, Thompson sampling) would be more robust in such cases.
+
+⸻
+
+4.4 Overall Observations
+
+Across all three problems:
+	•	BO is most effective when the function is smooth and low-noise (Branin).
+	•	It maintains a competitive advantage over random search when the structure is moderately noisy (SVM).
+	•	Its performance may degrade or plateau early under high noise or weak structure (LDA).
+
+These experiments illustrate the fundamental tradeoffs of Gaussian-process–based Bayesian optimization:
+when the surrogate model matches the underlying function well, BO is extremely powerful; otherwise, the method becomes more fragile.
